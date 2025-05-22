@@ -20,7 +20,7 @@
 #' create_config("my_config.yaml")
 #'
 #' @note
-#' - Replace `NA` with appropriate values before using the configuration.
+#' - Users need to replace `NA` with appropriate values before using the configuration.
 #' - The function does not validate YAML content.
 #'
 #' @export
