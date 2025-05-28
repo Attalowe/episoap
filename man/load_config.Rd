@@ -2,7 +2,7 @@
 % Please edit documentation in R/load_config.R
 \name{load_config}
 \alias{load_config}
-\title{Load Configuration Parameters}
+\title{Load and Validate Configuration Parameters From Yaml}
 \usage{
 load_config(path = file.path(tempdir(), "config.yaml"))
 }
@@ -10,8 +10,8 @@ load_config(path = file.path(tempdir(), "config.yaml"))
 \item{path}{Path to config file (default: tempdir()/config.yaml)}
 }
 \value{
-List with loaded data and parameters
+List of validated parameters from the yaml
 }
 \description{
-Load Configuration Parameters
+Load and Validate Configuration Parameters From Yaml
 }
