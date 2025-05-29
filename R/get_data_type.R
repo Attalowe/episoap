@@ -12,43 +12,50 @@
 #' @param total_death A numeric with the total number of deaths. Default is NULL.
 #'
 #' @returns  A character with one of the following values: "count_data", "linelist" or "incidence".
+#'
+#' @details
+#' This function:
+#' 1. Loads the configuration file from the default location (`tempdir()/config.yaml`)
+#' 2. Reads parameters and loads data files if specified
+#' 3. Validates the configuration structure
+#' 4. Determines data type based on:
+#'    - Presence of total_cases/total_deaths (count_data)
+#'    - Structure of loaded data (incidence or linelist)
+#'
+#' The configuration file must be created and edited using `create_config()` first.
+#'
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' # Typical workflow:
 #'
-#' # 1. COUNT DATA EXAMPLE
-#' # When totals are provided directly
-#' get_data_type(total_count = 1500, total_death = 75)  # Returns "count_data"
+#' # 1. Create and edit configuration file
+#' create_config()
 #'
-#' # 2. INCIDENCE OBJECT EXAMPLE
-#' # When using an incidence object
-#' dummy_inc <- structure(list(date = Sys.Date(), cases = 100, dead = 5),
-#'                        class = "incidence")
-#' get_data_type(data = dummy_inc)  # Returns "incidence"
+#' # 2. After editing config.yaml, determine data type
+#' result <- get_data_type()
+#' print(result)
 #'
-#' # 3. LINELIST EXAMPLE
-#' # Detailed case-based data with key identifiers
-#' linelist_df <- data.frame(
-#'   ID = 1:100,
-#'   ONSET_DATE = Sys.Date() - 1:100,
-#'   REPORT_DATE = Sys.Date(),
-#'   AGE = sample(5:80, 100, replace = TRUE),
-#'   OUTCOME = sample(c("Fatal", "Recovered"), 100, replace = TRUE)
-#' )
-#' get_data_type(data = linelist_df)  # Returns "linelist"
+#' # Example outputs:
+#' # [1] "count_data"
+#' # [1] "linelist"
+#' # [1] "incidence"
 #'
-#' # 4. SIMPLE INCIDENCE DATA FRAME
-#' # Minimal time-based case counts
-#' inc_df <- data.frame(
-#'   Date = seq.Date(Sys.Date(), by = "day", length.out = 10),
-#'   Cases = sample(10:50, 10),
-#'   Dead = sample(20:100, 10),
-#' )
-#' get_data_type(data = inc_df)  # Returns "incidence"
+#' # Example with custom config path:
+#' # First create config in working directory:
+#' create_config("my_config.yaml")
 #'
-#' # 5. ERROR CASE
-#' # Missing both data and counts
-#' try(get_data_type())  # Throws  error message
+#' # Then run detection (still uses default tempdir config):
+#' result <- get_data_type()
+#'
+#' # To use custom path, modify default in load_config:
+#' # (Advanced: Not recommended for most users)
+#' }
+#'
+#' @seealso
+#' - [create_config()] to create/edit configuration files
+#' - [load_config()] for advanced configuration handling
 
 get_data_type <- function(){
 # Load configuration using default tempdir path
