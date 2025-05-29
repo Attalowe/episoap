@@ -20,7 +20,7 @@ Imports:
     renv (>= 0.13.0),
     rmarkdown,
     rstatix,
-    yaml
+    yaml,
     rio
 Suggests: 
     knitr,
