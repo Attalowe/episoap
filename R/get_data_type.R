@@ -1,6 +1,11 @@
 
 
-#' Determine input data type for the severity pipeline
+#' Determine input data type from the configuration file
+#'
+#' Automatically detects the data type (count_data, linelist, or incidence)
+#' based on parameters defined in the configuration file. This function reads
+#' the configuration file created by `create_config()`, loads any specified
+#' data files, and analyzes the parameters to determine the appropriate data type.
 #'
 #' @param data A dataframe-like object that can be either data.frame, linelist or incidence. Default is NULL.
 #' @param total_count A numeric with the total number of cases. Default is NULL.
@@ -45,7 +50,14 @@
 #' # Missing both data and counts
 #' try(get_data_type())  # Throws  error message
 
-get_data_type <- function( data = NULL, total_count = NULL, total_death = NULL ){
+get_data_type <- function(){
+# Load configuration using default tempdir path
+params <- load_config()
+
+# Extract the required parameters
+data <- params[["data"]]
+total_count <- params[["severity"]][["total_cases"]]
+total_death <-params[["severity"]][["total_deaths"]]
 
   # validate inputs
   checkmate::assert(
