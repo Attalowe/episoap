@@ -66,15 +66,37 @@ create_config <- function(path = file.path(tempdir(), "config.yaml")) {
   #   "Windows" = shell.exec(path),
   #   "Linux" = system(paste("xdg-open", shQuote(path)), wait = FALSE)
   # )
+#
+#    if (Sys.info()["sysname"] == "Darwin") {
+#     system(paste("open", shQuote(path)), wait = FALSE)
+#   } else if (Sys.info()["sysname"] == "Windows") {
+#     shell.exec(path)
+#    } else {
+#     system(paste("xdg-open", shQuote(path)), wait = FALSE)
+#   }
+#
+  # trying switch default case
+  #  sysname <- Sys.info()[["sysname"]]
+#   switch(
+#     sysname,
+#     "Darwin"  = system(paste("open", shQuote(path)), wait = FALSE),
+#     "Windows" = shell.exec(path),
+#     "Linux"   = system(paste("xdg-open", shQuote(path)), wait = FALSE),
+#     {
+#       # Default case: unknown OS or running in non-interactive environment
+#       message("Please manually open the configuration file at: ", path)
+#       if (interactive()) {
+#         # Try RStudio/editor as fallback
+#         file.edit(path)
+#       }
+#     }
+#   )
+#
+#   invisible(path)
+# }
+  #
+#   invisible(path)
+  if (interactive()) file.edit(path)
+ }
 
-   if (Sys.info()["sysname"] == "Darwin") {
-    system(paste("open", shQuote(path)), wait = FALSE)
-  } else if (Sys.info()["sysname"] == "Windows") {
-    shell.exec(path)
-   } else {
-    system(paste("xdg-open", shQuote(path)), wait = FALSE)
-  }
-
-  invisible(path)
-}
 

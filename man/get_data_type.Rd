@@ -2,9 +2,9 @@
 % Please edit documentation in R/get_data_type.R
 \name{get_data_type}
 \alias{get_data_type}
-\title{Determine input data type for the severity pipeline}
+\title{Determine input data type from the configuration file}
 \usage{
-get_data_type(data = NULL, total_count = NULL, total_death = NULL)
+get_data_type()
 }
 \arguments{
 \item{data}{A dataframe-like object that can be either data.frame, linelist or incidence. Default is NULL.}
@@ -17,41 +17,57 @@ get_data_type(data = NULL, total_count = NULL, total_death = NULL)
 A character with one of the following values: "count_data", "linelist" or "incidence".
 }
 \description{
-Determine input data type for the severity pipeline
+Automatically detects the data type (count_data, linelist, or incidence)
+based on parameters defined in the configuration file. This function reads
+the configuration file created by \code{create_config()}, loads any specified
+data files, and analyzes the parameters to determine the appropriate data type.
+}
+\details{
+This function:
+\enumerate{
+\item Loads the configuration file from the default location (\code{tempdir()/config.yaml})
+\item Reads parameters and loads data files if specified
+\item Validates the configuration structure
+\item Determines data type based on:
+\itemize{
+\item Presence of total_cases/total_deaths (count_data)
+\item Structure of loaded data (incidence or linelist)
+}
+}
+
+The configuration file must be created and edited using \code{create_config()} first.
 }
 \examples{
+\dontrun{
+# Typical workflow:
 
-# 1. COUNT DATA EXAMPLE
-# When totals are provided directly
-get_data_type(total_count = 1500, total_death = 75)  # Returns "count_data"
+# 1. Create and edit configuration file
+create_config()
 
-# 2. INCIDENCE OBJECT EXAMPLE
-# When using an incidence object
-dummy_inc <- structure(list(date = Sys.Date(), cases = 100, dead = 5),
-                       class = "incidence")
-get_data_type(data = dummy_inc)  # Returns "incidence"
+# 2. After editing config.yaml, determine data type
+result <- get_data_type()
+print(result)
 
-# 3. LINELIST EXAMPLE
-# Detailed case-based data with key identifiers
-linelist_df <- data.frame(
-  ID = 1:100,
-  ONSET_DATE = Sys.Date() - 1:100,
-  REPORT_DATE = Sys.Date(),
-  AGE = sample(5:80, 100, replace = TRUE),
-  OUTCOME = sample(c("Fatal", "Recovered"), 100, replace = TRUE)
-)
-get_data_type(data = linelist_df)  # Returns "linelist"
+# Example outputs:
+# [1] "count_data"
+# [1] "linelist"
+# [1] "incidence"
 
-# 4. SIMPLE INCIDENCE DATA FRAME
-# Minimal time-based case counts
-inc_df <- data.frame(
-  Date = seq.Date(Sys.Date(), by = "day", length.out = 10),
-  Cases = sample(10:50, 10),
-  Dead = sample(20:100, 10),
-)
-get_data_type(data = inc_df)  # Returns "incidence"
+# Example with custom config path:
+# First create config in working directory:
+create_config("my_config.yaml")
 
-# 5. ERROR CASE
-# Missing both data and counts
-try(get_data_type())  # Throws  error message
+# Then run detection (still uses default tempdir config):
+result <- get_data_type()
+
+# To use custom path, modify default in load_config:
+# (Advanced: Not recommended for most users)
+}
+
+}
+\seealso{
+\itemize{
+\item \code{\link[=create_config]{create_config()}} to create/edit configuration files
+\item \code{\link[=load_config]{load_config()}} for advanced configuration handling
+}
 }
