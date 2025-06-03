@@ -44,8 +44,8 @@ params <- list(
 # populate and validate params --------
 
 # Load data if path provided
- if (!is.null(config[["data"]])) {
-   checkmate::assert_string(config[["data"]], na.ok = TRUE, .var.name = "data_path")
+ if (!is.null(config[["data"]]) && !is.na(config[["data"]])) {
+   checkmate::assert_string(config[["data"]], na.ok = FALSE, .var.name = "data_path")
    checkmate::assert_file_exists(config[["data"]], access = "r", .var.name = "data_file")
   tryCatch({
     params[["data"]] <-  rio::import(config[["data"]])
