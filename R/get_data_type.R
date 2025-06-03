@@ -56,69 +56,74 @@
 #' - [load_config()] for advanced configuration handling
 
 get_data_type <- function(){
-# Load configuration using default tempdir path
-params <- load_config()
+  # Load configuration using default tempdir path
+  params <- load_config()
 
-# Extract the required parameters
-data <- params[["data"]]
-total_count <- params[["severity"]][["total_cases"]]
-total_death <-params[["severity"]][["total_deaths"]]
+  # Extract the required parameters
+  data <- params[["data"]]
+  if (!is.na(data)) {
+    data <- rio::import(data)
+  }
+  total_count <- params[["severity"]][["total_cases"]]
+  total_death <- params[["severity"]][["total_deaths"]]
 
-# validate inputs
-checkmate::assert(
-    checkmate::check_null(data),
+  # validate inputs
+  checkmate::assert(
+    checkmate::check_scalar_na(data),
     checkmate::check_data_frame(data),
     checkmate::check_class(data, classes = "linelist"),
     checkmate::check_class(data, classes = "incidence"),
     combine = "or"
-)
-# Check if 'total_count'  and total_death' are a single numeric value or NULL and are non-negative
-checkmate::assert_number(total_count, null.ok = TRUE, lower = 0)
-checkmate::assert_number(total_death, null.ok = TRUE, lower = 0)
+  )
 
-# Check for count data
-if ( !is.null(total_count) && !is.null(total_death)) {
+  # Check if 'total_count'  and total_death' are a single numeric value or NULL
+  # and are non-negative
+  checkmate::assert_number(total_count, na.ok = TRUE, lower = 0)
+  checkmate::assert_number(total_death, na.ok = TRUE, lower = 0)
+
+  # Check for count data
+  if (!is.na(total_count) && !is.na(total_death)) {
     return("count_data")
-}
-
-#  Check for incidence objects
-if (inherits(data, "incidence")) {
-    return("incidence")
-}
-
-# check for data.frame/linelist
-if (inherits(data, "data.frame")) {
-# Convert column names to lowercase for consistent checks
-actual_cols <- tolower(names(data))
-required_incidence <- c("date", "cases", "dead") # atleast
-# linelist features
-linelist_keywords <- c("id", "case", "date", "onset", "report",
-                           "age", "sex", "gender", "outcome", "symptom", "hospital")
-
-#  Incident data check
-if (all(required_incidence %in% actual_cols)) {
-# Check if pure incident or has extras
-if (length(actual_cols) == 3) {
-return("incidence")
-} else {
-# Check extra columns for linelist features
-extra_cols <- actual_cols[!actual_cols %in% required_incidence]
-has_linelist <- any(extra_cols %in% linelist_keywords)
-return(ifelse(has_linelist, "linelist", "incidence"))
   }
-}
+
+  #  Check for incidence objects
+  if (inherits(data, "incidence")) {
+    return("incidence")
+  }
+
+  # check for data.frame/linelist
+  if (inherits(data, "data.frame")) {
+    # Convert column names to lowercase for consistent checks
+    actual_cols <- tolower(names(data))
+    required_incidence <- c("date", "cases", "dead") # atleast
+    # linelist features
+    linelist_keywords <- c("id", "case", "date", "onset", "report",
+                           "age", "sex", "gender", "outcome", "symptom",
+                           "hospital")
+
+    #  Incident data check
+    if (all(required_incidence %in% actual_cols)) {
+      # Check if pure incident or has extras
+      if (length(actual_cols) == 3) {
+        return("incidence")
+      } else {
+        # Check extra columns for linelist features
+        extra_cols <- actual_cols[!actual_cols %in% required_incidence]
+        has_linelist <- any(extra_cols %in% linelist_keywords)
+        return(ifelse(has_linelist, "linelist", "incidence"))
+      }
+    }
 
 
-# Count matches in original column names (case-insensitive)
-col_matches <- grepl(paste(linelist_keywords, collapse = "|"),
-                        names(data), ignore.case = TRUE)
+    # Count matches in original column names (case-insensitive)
+    col_matches <- grepl(paste(linelist_keywords, collapse = "|"),
+                            names(data), ignore.case = TRUE)
+    if (sum(col_matches) >= 4) {
+      return("linelist")
+    }
+  }
 
-if (sum(col_matches) >= 4) {
-     return("linelist")
- }
-}
-
-# Default/error case
+  # Default/error case
   stop("unknown_data_type! Either provide a non-negative value for  total_count and total_death arguements or  a dataframe-like object (data.frame, linelist or incidence),in the data arguement")
 }
 

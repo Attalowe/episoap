@@ -20,7 +20,8 @@
 #' create_config("my_config.yaml")
 #'
 #' @note
-#' - Users need to replace `NA` with appropriate values before using the configuration.
+#' - Users need to replace `NA` with appropriate values before using the
+#' configuration.
 #' - The function does not validate YAML content.
 #'
 #' @export
@@ -29,7 +30,7 @@ create_config <- function(path = file.path(tempdir(), "config.yaml")) {
   # create the config file template
   if (!file.exists(path)) {
     config_template <- list(
-      data = NA_character_,
+      data = NA_character_, # this is the path to your input data
       disease_name = NA_character_,
       severity = list(
         total_cases = NA_real_,
@@ -46,57 +47,15 @@ create_config <- function(path = file.path(tempdir(), "config.yaml")) {
           sdlog = NA_real_,
           shape = NA_real_,
           scale = NA_real_
-        )
-
-        )
-
+        ))
       )
-
     )
-
     yaml::write_yaml(config_template, path)
-
   }
 
-  # # Open the config file template
-  # system_info <- Sys.info()["sysname"]
-  # switch(
-  #   system_info,
-  #   "Darwin" = system(paste("open", shQuote(path)), wait = FALSE),
-  #   "Windows" = shell.exec(path),
-  #   "Linux" = system(paste("xdg-open", shQuote(path)), wait = FALSE)
-  # )
-#
-#    if (Sys.info()["sysname"] == "Darwin") {
-#     system(paste("open", shQuote(path)), wait = FALSE)
-#   } else if (Sys.info()["sysname"] == "Windows") {
-#     shell.exec(path)
-#    } else {
-#     system(paste("xdg-open", shQuote(path)), wait = FALSE)
-#   }
-#
-  # trying switch default case
-  #  sysname <- Sys.info()[["sysname"]]
-#   switch(
-#     sysname,
-#     "Darwin"  = system(paste("open", shQuote(path)), wait = FALSE),
-#     "Windows" = shell.exec(path),
-#     "Linux"   = system(paste("xdg-open", shQuote(path)), wait = FALSE),
-#     {
-#       # Default case: unknown OS or running in non-interactive environment
-#       message("Please manually open the configuration file at: ", path)
-#       if (interactive()) {
-#         # Try RStudio/editor as fallback
-#         file.edit(path)
-#       }
-#     }
-#   )
-#
-#   invisible(path)
-# }
-  #
-#   invisible(path)
+  # open the file in your editor
   if (interactive()) file.edit(path)
- }
+}
+
 
 
