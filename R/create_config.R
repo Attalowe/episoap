@@ -30,7 +30,7 @@ create_config <- function(path = file.path(tempdir(), "config.yaml")) {
   # create the config file template
   if (!file.exists(path)) {
     config_template <- list(
-      data = NA_character_, # this is the path to your input data
+      data = NA_character_,
       disease_name = NA_character_,
       severity = list(
         total_cases = NA_real_,
@@ -51,6 +51,42 @@ create_config <- function(path = file.path(tempdir(), "config.yaml")) {
       )
     )
     yaml::write_yaml(config_template, path)
+
+
+    comments <- c(
+      "data" = "This is the path to your input data file (CSV,Excel,etc.)",
+      "disease_name" = "Name of disease (e.g., 'COVID-19')",
+      "total_cases" = "total cases to scale against in your population",
+      "total_deaths" = "total deaths due to the disease",
+      "death_in_confirmed" = "deaths amongst lab-confirmed cases",
+      "account_for_delay" = "Whether to account for delay from onset to death(TRUE or FALSE.)",
+      "interval" = "Time interval for estimates.(e.g., 'day','week')",
+      "epidist" = "Epidemiological delay distribution. NULL or custom",
+      "type" = "Distribution to use.(e.g., 'gamma' or 'lognormal')",
+      "distribution" = "Synonymous with 'type'",
+      "meanlog" = "For lognormal. Mean of log.(e.g., 1.5)",
+      "sdlog" = "For lognormal. SD of log.(e.g., 0.5)",
+      "shape" = "For gamma. Shape.(e.g., 2)",
+      "scale" = "For gamma. Scale. (e.g., 5)"
+
+    )
+    lines <- readLines(path)
+    for (i in seq_along(lines)){
+      key <- sub("^([ ]*)([a-zA-Z0-9_\\-]+):.*$", "\\2", lines[i])
+      if (key %in% names(comments)){
+        if (!grepl("#", lines[i], fixed = TRUE)){
+          lines[i] <- paste0(lines[i], "  # ", comments[[key]])
+
+        }
+
+      }
+
+
+    }
+
+    writeLines(lines, path)
+
+
   }
 
   # open the file in your editor
