@@ -88,7 +88,7 @@ load_config <- function(path = file.path(tempdir(), "config.yaml")) {
     # check if death_in_confirmed is provided as numeric
     if ("death_in_confirmed" %in% severity_fields) {
       checkmate::assert_number(params[["severity"]][["death_in_confirmed"]],
-                               lower = 0, upper = 1, na.ok = TRUE,
+                               lower = 0, na.ok = TRUE,
                                .var.name = "death_in_confirmed")
     }
 
