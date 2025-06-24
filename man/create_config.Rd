@@ -23,7 +23,8 @@ file is then opened in the system's default application for YAML/text files.
 }
 \note{
 \itemize{
-\item Users need to replace \code{NA} with appropriate values before using the configuration.
+\item Users need to replace \code{NA} with appropriate values before using the
+configuration.
 \item The function does not validate YAML content.
 }
 }
