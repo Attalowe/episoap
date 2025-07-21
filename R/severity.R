@@ -18,12 +18,25 @@
 #' )
 #'
 #'
-calculate_cfr_from_counts <- function(total_cases, total_deaths, death_in_confirmed) {
-
+calculate_cfr_from_counts <- function(config_path = file.path(tempdir(), "config.yaml")) {
+  # Load config
+  params <- load_config(config_path)
 
   # if the user does not have a data frame that contains the date, cases, and
   # deaths columns, but provided the number of total_cases, total_death,
   # death_in_confirmed, this function can be used to estimate CFR.
+
+  #Determine data type
+  data_type <- get_data_type()
+  if (data_type != "count_data") {
+    stop("Config does not describe count data; cannot use this function.")
+  }
+
+  # Extract values from severity
+  total_cases <- params[["severity"]][["total_cases"]]
+  total_deaths <- params[["severity"]][["total_deaths"]]
+  death_in_confirmed <- params[["severity"]][["death_in_confirmed"]]
+
 
   # make sure that the parameters are converted into numeric
   total_cases <- as.numeric(total_cases)
@@ -59,7 +72,7 @@ calculate_cfr_from_counts <- function(total_cases, total_deaths, death_in_confir
 }
 
 #' Estimate disease severity from incidence object
-#'
+
 #' @inheritParams get_severity
 #'
 #' @return an object of type `list` with 2 data frames that contains the
