@@ -79,12 +79,25 @@ calculate_cfr_from_counts <- function(config_path = file.path(tempdir(), "config
 #'    CFR values in all cases and in confirmed cases only.
 #' @keywords internal
 #'
-calculate_cfr_from_incidence <- function(data,
-                                         epidist,
-                                         epidist_params) {
+calculate_cfr_from_config_incidence <- function(config_path = file.path(
+                                              tempdir(),"config.yaml")) {
+  # Load config
+  params <- load_config(config_path)
+
+  # Use get_data_type to get type and loaded data
+  data_type <- get_data_type()
+
+  if (data_type != "incidence") {
+    stop("Config does not describe incidence data; cannot use this function.")
+  }
+
+  data <- params[["data"]]
+  epidist <- params[["severity"]][["epidist"]]
+  epidist_params <- params[["severity"]][["epidist_params"]]
+  delay_params <- epidist_params[["parameters"]]
 
   # convert dates to sequential if necessary
-  if (!(unique(diff(data[["date"]])) == 1L)) {
+  if (!all(unique(diff(data[["date"]])) == 1L)){
     data  <- get_sequential_dates(data)
   }
 
@@ -116,19 +129,21 @@ calculate_cfr_from_incidence <- function(data,
     params <- get_delay_distro_params(
       data,
       type = epidist_params[["type"]],
+      # values not in my yaml
       values = epidist_params[["values"]],
       distribution = epidist_params[["distribution"]],
-      shape = epidist_params[["shape"]],
-      scale = epidist_params[["scale"]],
-      meanlog = epidist_params[["meanlog"]],
-      sdlog = epidist_params[["sdlog"]]
+      shape = delay_params[["shape"]],
+      scale = delay_params[["scale"]],
+      meanlog = delay_params[["meanlog"]],
+      sdlog = delay_params[["sdlog"]]
     )
+    interval = params[["severity"]][["interval"]]
     if (epidist_params[["distribution"]] %in% c("gamma", "weibull")) {
       onset_to_death_distribution <- distcrete::distcrete(
         name = "gamma",
         shape = params[["shape"]],
         scale = params[["scale"]],
-        interval = epidist_params[["interval"]]
+        interval = interval
       )
       cfr <- cfr::cfr_static(
         data = data,
@@ -136,8 +151,8 @@ calculate_cfr_from_incidence <- function(data,
       )
     } else {
       onset_to_death_distribution <- distributional::dist_lognormal(
-        mu = params[["meanlog"]],
-        sigma = params[["sdlog"]]
+        mu = delay_params[["meanlog"]],
+        sigma = delay_params[["sdlog"]]
       )
       cfr <- cfr::cfr_static(
         data = data,
