@@ -17,9 +17,9 @@
 #'   death_in_confirmed = 2
 #' )
 #'
-calculate_cfr_from_counts <- function(total_cases,
-                                      total_deaths,
-                                      death_in_confirmed) {
+#'
+calculate_cfr_from_counts <- function(total_cases, total_deaths, death_in_confirmed) {
+
 
   # if the user does not have a data frame that contains the date, cases, and
   # deaths columns, but provided the number of total_cases, total_death,
@@ -657,3 +657,22 @@ run_severity <- function(disease_name,
 # cavits:
 # printing function only show 1 result if it is a list
 # need the defaults arguments when estimating cfr from count data
+
+severity_estimate <- function() {
+  dt <- get_data_type()
+  params <- load_config()
+
+  if(dt == "count_data"){
+    return(
+      calculate_cfr_from_counts(
+        params[["severity"]][["total_cases"]],
+        params[["severity"]][["total_deaths"]],
+        params[["severity"]][["death_in_confirmed"]]
+      )
+    )
+
+  }
+  if (dt == "incidence"){
+
+  }
+}
