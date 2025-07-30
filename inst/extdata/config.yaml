@@ -1,0 +1,17 @@
+data: .na.character  # This is the path to your input data file (CSV,Excel,etc.)
+disease_name: .na.character  # Name of disease (e.g., 'COVID-19')
+severity:
+  total_cases: 1112  # total cases to scale against in your population
+  total_deaths: 56  # total deaths due to the disease
+  death_in_confirmed: 50  #  A numeric that represents the number of death among the confirmed cases.
+  account_for_delay: yes  # Whether to account for delay from onset to death(TRUE or FALSE.)
+  interval: .na.character  # Time interval for estimates.(e.g., 'day','week')
+  epidist: ~  # Epidemiological delay distribution. NULL or custom
+  epidist_params:
+    type: .na.character  # Distribution to use.(e.g., 'gamma' or 'lognormal')
+    distribution: .na.character  # Synonymous with 'type'
+    parameters:
+      meanlog: .na.real  # For lognormal. Mean of log.(e.g., 1.5)
+      sdlog: .na.real  # For lognormal. SD of log.(e.g., 0.5)
+      shape: .na.real  # For gamma. Shape.(e.g., 2)
+      scale: .na.real  # For gamma. Scale. (e.g., 5)

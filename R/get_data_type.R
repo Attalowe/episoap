@@ -1,71 +1,52 @@
 #' Determine input data type from the configuration file
 #'
 #' Automatically detects the data type (count_data, linelist, or incidence)
-#' based on parameters defined in the configuration file. This function reads
-#' the configuration file created by `create_config()`, loads any specified
-#' data files, and analyzes the parameters to determine the appropriate data type.
+#' based on parameters defined in the configuration file. This function takes
+#' the list of parameters returned by the `load_config()` function to determine
+#' the appropriate data type.
 #'
-#' @param data A dataframe-like object that can be either data.frame, linelist or incidence. Default is NULL.
-#' @param total_count A numeric with the total number of cases. Default is NULL.
-#' @param total_death A numeric with the total number of deaths. Default is NULL.
+#' @param params A list of parameters returned by the `load_config()` function
 #'
-#' @returns  A character with one of the following values: "count_data", "linelist" or "incidence".
+#' @returns  A character with one of the following values: "count_data",
+#' "linelist" or "incidence".
 #'
 #' @details
-#' This function:
-#' 1. Loads the configuration file from the default location (`tempdir()/config.yaml`)
-#' 2. Reads parameters and loads data files if specified
-#' 3. Validates the configuration structure
-#' 4. Determines data type based on:
-#'    - Presence of total_cases/total_deaths (count_data)
+#' This function determines the data type based on the followings:
+#'    - Presence of total_cases, total_deaths (count_data)
 #'    - Structure of loaded data (incidence or linelist)
-#'
-#' The configuration file must be created and edited using `create_config()` first.
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' # Typical workflow:
+#' # Load configuration from the default tempdir path
+#' params <- load_config(
+#'   path = system.file("extdata", "config.yaml", package = "episoap")
+#' )
 #'
-#' # 1. Create and edit configuration file
-#' create_config()
-#'
-#' # 2. After editing config.yaml, determine data type
-#' result <- get_data_type()
-#' print(result)
-#'
-#' # Example outputs:
-#' # [1] "count_data"
-#' # [1] "linelist"
-#' # [1] "incidence"
-#'
-#' # Example with custom config path:
-#' # First create config in working directory:
-#' create_config("my_config.yaml")
-#'
-#' # Then run detection (still uses default tempdir config):
-#' result <- get_data_type()
-#'
-#' # To use custom path, modify default in load_config:
-#' # (Advanced: Not recommended for most users)
-#' }
+#' # get the data type
+#' data_type <- get_data_type()
 #'
 #' @seealso
 #' - [create_config()] to create/edit configuration files
 #' - [load_config()] for advanced configuration handling
 
-get_data_type <- function(){
-  # Load configuration using default tempdir path
-  params <- load_config()
+get_data_type <- function(params){
+  # TODO: ATTA to add validation for the value of the params argument
 
   # Extract the required parameters
   data <- params[["data"]]
+  total_count <- params[["severity"]][["total_cases"]]
+  total_death <- params[["severity"]][["total_deaths"]]
+
+  # throw an error when both data, total_count, and total_death are provided
+  if (all(!is.na(data) && !is.na(total_count) && !is.na(total_death))) {
+    stop("Atta to provide a meaningful message here.")
+  }
+
+  # import the data
   if (!is.na(data)) {
     data <- rio::import(data)
   }
-  total_count <- params[["severity"]][["total_cases"]]
-  total_death <- params[["severity"]][["total_deaths"]]
 
   # validate inputs
   checkmate::assert(
@@ -124,7 +105,7 @@ get_data_type <- function(){
   }
 
   # Default/error case
-  stop("unknown_data_type! Either provide a non-negative value for  total_count and total_death arguements or  a dataframe-like object (data.frame, linelist or incidence),in the data arguement")
+  stop("Unknown data type! Either provide a non-negative value for 'total_count' and 'total_death' arguements or the path to file with the input data to the 'data' argument.")
 }
 
 
